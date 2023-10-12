@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Books</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <?php
     
@@ -51,32 +51,32 @@
     else if($operator== "Delete")
     {
         $id=$_GET['Isbn'];
-        $flag = false;
-        for($i = 0; $i < count($users); $i++)
-        {
-            if($users[$i]["isbn"]==$id && !$flag)
-            {
-                unset($users[$i]);
-                $flag=true;
+        $foundIndex = null;
+        foreach ($users as $index => $user) {
+            $ok = $user['isbn'];
+            if ($user['isbn'] == $id) {
+                $foundIndex = $index;
+                break;
             }
         }
-        $data_to_delete = $users;
-	    if(!file_put_contents("books.json",json_encode($data_to_delete,JSON_PRETTY_PRINT),LOCK_EX))
-        {
-            echo "ERROR to delete";
+        
+        if ($foundIndex === null) {
+            echo "User (book) not found.";
+            exit;
         }
-        else if($flag==false)
-        {
-            echo "Not found";
-        }
-        else
-        {
-            echo "Successfully deleted";
+        
+        array_splice($users, $foundIndex, 1);
+        
+        if (file_put_contents(__DIR__.'/books.json', json_encode($users, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX)) {
+            echo "Successfully deleted.";
+        } else {
+            echo "Error deleting data.";
         }
     }
     else if($operator== "Read")
     {
         ?>
+        <h1 class="text-center">BOOK LIST</h1>
         <table class="table table-bordered table-hover">
         <tr>
             <th>Title</th>
